@@ -1,8 +1,8 @@
 (function($, Backbone, _, MjeClient, toastr){
-    var MjeRealtime =  function (){
+    var MjeRealtimeMessage =  function (){
         var self = this;
         this.noticeTemplate = _.template($('#mjob-realtime-new-job-notify').html());
-        this.mjeClient = new MjeClient('139.59.241.200','8081', '/mje/notify');
+        this.mjeClient = new MjeClient('139.59.241.200','8081', '/mje/message');
 
         this.mjeClient.pubsub.on('mje_realtime:open', function(evt){
             console.log(evt);
@@ -12,15 +12,10 @@
             try{
                 data = JSON.parse(data);
                 if(typeof data.action != 'undefined'){
+
                     switch ( data.action ) {
-                        case 'MJOB_POST_NEW_PUBLISH':
-                        case 'MJOB_POST_DRAFT_PUBLISH':
-                        case 'MJOB_POST_PENDING_PUBLISH':
-                            self.onNewJob(data.post);
-                            break;
-                        case 'MJOB_POST_PUBLISH_DRAFT':
-                        case 'MJOB_POST_PUBLISH_TRASH':
-                            self.onJobDelete(data.post);
+                        case 'AE_MESSAGE_NEW_PUBLISH':
+                            self.onNewMessage(data.post);
                             break;
                     }
                 }
@@ -30,13 +25,7 @@
         });
     };
 
-    MjeRealtime.prototype.onJobDelete = function(job){
-        if($('body').hasClass('postid-'+job.ID)){
-            window.location.href = '/';
-        }
-    };
-
-    MjeRealtime.prototype.onNewJob = function(job){
+    MjeRealtimeMessage.prototype.onNewMessage = function(job){
         toastr.options = {
             "closeButton": true,
             "showMethod": 'fadeIn',
@@ -50,6 +39,6 @@
     };
 
     $(document).ready(function() {
-        var mjeRealtime = new MjeRealtime();
+        var mjeRealtime = new MjeRealtimeMessage();
     });
 })(jQuery, Backbone, _, window.MjeClient, window.toastr);
